@@ -1,6 +1,7 @@
 package com.reactive.example.webreactive;
 
 import rx.Observable;
+import rx.Subscriber;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 
@@ -16,19 +17,8 @@ public class StockService {
                 subscriber -> {
                     if (!subscriber.isUnsubscribed()) {
                         Stock stock = null;
-
                         Arrays.stream(quotes).map(quote -> {
-                            try {
-                                System.out.println("service:: Retrieve Stock Info -> " + quote);
-                                if (quote.equals("GOOG")) {
-                                    throw new IOException("GOOG Error");
-                                }
-                                return YahooFinance.get(quote);
-                            } catch (IOException e) {
-                                System.out.println(e);
-                                subscriber.onError(e);
-                            }
-                            return null;
+                            return getStock(subscriber, quote);
                         }).filter(stockInfo -> stockInfo != null)
                                 .forEach(stockInfo -> {
                                     subscriber.onNext(stockInfo);
@@ -39,6 +29,20 @@ public class StockService {
                     subscriber.onCompleted();
                 }
         );
+    }
+
+    private Stock getStock(Subscriber<? super Stock> subscriber, String quote) {
+        try {
+            System.out.println("service:: Retrieve Stock Info -> " + quote);
+            if (quote.equals("GOOG")) {
+                throw new IOException("GOOG Error");
+            }
+            return YahooFinance.get(quote);
+        } catch (IOException e) {
+            System.out.println(e);
+            subscriber.onError(e);
+        }
+        return null;
     }
 
     private void sleep(int i) {

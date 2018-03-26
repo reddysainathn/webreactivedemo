@@ -11,7 +11,7 @@ public class ReactiveResource {
     public static void main(String[] args) {
         Observable<Stock> stockQuotes = new ReactiveResource().getStockQuotes();
         System.out.println("Going to Subscribe--");
-        stockQuotes.subscribe(stock -> callBack(stock), throwable -> errorCallBack(throwable), () -> completeCallBack());
+        stockQuotes.subscribe(ReactiveResource::callBack, ReactiveResource::errorCallBack, ReactiveResource::completeCallBack);
         System.out.println("Process Completed!");
     }
 
